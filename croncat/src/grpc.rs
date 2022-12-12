@@ -13,7 +13,7 @@ use cw_croncat_core::msg::AgentResponse;
 use cw_croncat_core::msg::AgentTaskResponse;
 use cw_croncat_core::msg::CwCroncatResponse;
 use cw_croncat_core::msg::TaskResponse;
-use cw_croncat_core::msg::TaskWithRulesResponse;
+use cw_croncat_core::msg::TaskWithQueriesResponse;
 use cw_croncat_core::msg::{ExecuteMsg, GetConfigResponse, QueryMsg};
 use cw_rules_core::msg::QueryConstruct;
 use cw_rules_core::msg::QueryConstructResponse;
@@ -160,9 +160,9 @@ impl GrpcSigner {
         &self,
         from_index: Option<u64>,
         limit: Option<u64>,
-    ) -> Result<Vec<TaskWithRulesResponse>, Report> {
-        let res: Vec<TaskWithRulesResponse> = self
-            .query_croncat(&QueryMsg::GetTasksWithRules {
+    ) -> Result<Vec<TaskWithQueriesResponse>, Report> {
+        let res: Vec<TaskWithQueriesResponse> = self
+            .query_croncat(&QueryMsg::GetTasksWithQueries {
                 // TODO: find optimal pagination
                 from_index,
                 limit,
@@ -171,7 +171,7 @@ impl GrpcSigner {
         Ok(res)
     }
 
-    pub async fn fetch_rules(&self) -> Result<Vec<TaskWithRulesResponse>, Report> {
+    pub async fn fetch_rules(&self) -> Result<Vec<TaskWithQueriesResponse>, Report> {
         let mut tasks_with_rules = Vec::new();
         let mut start_index = 0;
         let limit = 20;
@@ -191,7 +191,7 @@ impl GrpcSigner {
 
     pub async fn check_rules(
         &self,
-        rules: Vec<CroncatQuery>,
+        queries: Vec<CroncatQuery>,
     ) -> Result<QueryConstructResponse, Report> {
         let cw_rules_addr = {
             let cfg: GetConfigResponse = self.query_croncat(&QueryMsg::GetConfig {}).await?;
@@ -202,7 +202,7 @@ impl GrpcSigner {
             .query_client
             .query_contract(
                 &cw_rules_addr,
-                cw_rules_core::msg::QueryMsg::QueryConstruct(QueryConstruct { rules }),
+                cw_rules_core::msg::QueryMsg::QueryConstruct(QueryConstruct { queries }),
             )
             .await?;
         Ok(res)

@@ -116,7 +116,7 @@ pub async fn rules_loop(
                             result: rules_ready,
                             ..
                         } = signer
-                            .check_rules(task.rules.clone().ok_or_else(|| eyre!("No rules"))?)
+                            .check_rules(task.queries.clone().ok_or_else(|| eyre!("No rules"))?)
                             .await
                             .map_err(|err| eyre!("Failed to query rules: {}", err))?;
                         if rules_ready {
